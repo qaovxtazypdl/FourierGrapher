@@ -1,15 +1,23 @@
 import java.util.*;
 
-public class UnaryExpression extends AbstractExpression {
-	//supports SIN, COS, TAN, ASIN, ACOS, ATAN, SINH, COSH, TANH, ABS, LOG, SQRT, FLOOR, CEIL, H(Heaviside) 
+// Class representing unary functions.
+public class UnaryFn extends AbstractExpression {
+	// supports SIN, COS, TAN, ASIN, ACOS, ATAN, SINH, COSH, TANH, ABS, LOG, SQRT, FLOOR, CEIL, H(Heaviside) 
 	private String operator;
+	
+	// Inner expression of the unary function.
 	private AbstractExpression expArg;
 	
-	UnaryExpression(AbstractExpression expArg, String operator) {
+	// Constructor
+	UnaryFn(AbstractExpression expArg, String operator) {
 		this.expArg = expArg;
 		this.operator = operator;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see AbstractExpression#evaluate(java.util.Map)
+	 */
 	public double evaluate(Map<String,Double> varList) {
 		double result = 0;
 		double innerResult = expArg.evaluate(varList);
@@ -53,6 +61,10 @@ public class UnaryExpression extends AbstractExpression {
 		return result;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see AbstractExpression#toString()
+	 */
 	public String toString() {
 		return operator + "(" + expArg.toString() + ")";
 	}

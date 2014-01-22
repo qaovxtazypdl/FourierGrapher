@@ -1,11 +1,12 @@
 import java.util.*;
 
 class Fourier {
+	// Everything here is temporary and for demo/testing purposes for now.
 	public static void main(String[] args) {
 		Graphing graph = new Graphing(700, 700, -12, 12, -12, 12, 1000);
 		
 		//AbstractExpression a = new UnaryExpression(new Variable("x"), "H");
-		AbstractExpression b = new BinaryExpression(new Variable("PI"), new Variable("x"), "^");
+		AbstractExpression b = new BinaryFn(new Variable("PI"), new Variable("x"), "^");
 		
 		Map<String,Double> varList = new HashMap<String,Double>(5);
 		varList.put("PI", Math.PI);
@@ -14,7 +15,7 @@ class Fourier {
 		
 
 		graph.addGraph(b);
-		AbstractExpression b_f = graph.fourierSeries(b, Math.PI, 10, varList);
+		AbstractExpression b_f = FourierSeries.fourierSeries(b, Math.PI, 10, varList);
 		graph.addGraph(b_f);
 		System.out.println(b_f.toString());
 		/*
@@ -44,18 +45,6 @@ class Fourier {
 		}
 		System.out.println(cons2);
 				*/
-		
-		
-		
 
-
-		//System.out.println(b_f.toString());
-		//Scanner sc = new Scanner(System.in);
-		//System.out.println(a.evaluate(arrayList));
-		//System.out.println(a.evaluateSimpson(arrayList));
-		
-		//System.out.println(b.evaluate(arrayList));
-		//parse here
-		//sc.close();
 	}
 }

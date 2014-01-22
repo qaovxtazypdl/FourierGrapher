@@ -1,12 +1,21 @@
 import java.util.*;
 
-public class IntegralExpression extends AbstractExpression {
+// Class representing the integrals.
+public class Integral extends AbstractExpression {
+	// Bounds of integration.
 	private double lowerLimit, upperLimit;
+	
+	// Expression to integrate
 	private AbstractExpression expArg;
+	
+	// Variable to integrate w.r.t.
 	private String intVar;
+	
+	// Number of partitions to use in approximating the integral.
 	private int partitions;
 	
-	IntegralExpression(AbstractExpression expArg, double lowerLimit, double upperLimit, int partitions, String intVar) {
+	// Constructor
+	Integral(AbstractExpression expArg, double lowerLimit, double upperLimit, int partitions, String intVar) {
 		this.expArg = expArg;
 		this.lowerLimit = lowerLimit;
 		this.upperLimit = upperLimit;
@@ -14,7 +23,7 @@ public class IntegralExpression extends AbstractExpression {
 		this.partitions = partitions;
 	}
 	
-	/* deprecated - simpson's rule
+	/* deprecated - Trapezoidal rule implementation
 	public double evaluate(Map<String,Double> varList) {
 		//disregard variables that matches the name of intVar
 		double partitionWidth = (upperLimit - lowerLimit) / partitions;
@@ -28,14 +37,18 @@ public class IntegralExpression extends AbstractExpression {
 		return integralSum;
 	} */
 	
+	/*
+	 * (non-Javadoc)
+	 * @see AbstractExpression#evaluate(java.util.Map)
+	 */
 	public double evaluate(Map<String,Double> varList) {
-		//disregard variables that matches the name of intVar
+		// Simpson's rule implementation of integral approximation.
+		// Make a copy of the list, since we are changing it.
 		Map<String,Double> newList = new HashMap<String,Double>(varList);
 		double partitionWidth = (upperLimit - lowerLimit) / partitions;
 		double[] partitionHeights = expArg.intervalEvaluation(newList, lowerLimit, upperLimit, partitions, intVar);
 		double integralSum = 0;
 		
-		//calculating areas using simpson's rule
 		for (int i = 0; i < partitions; i++) {
 			newList.put(intVar, (lowerLimit + (i * partitionWidth) + (partitionWidth / 2)));
 			double simpsonProduct = partitionHeights[i] + partitionHeights[i+1] + 4 * expArg.evaluate(newList);
@@ -45,6 +58,10 @@ public class IntegralExpression extends AbstractExpression {
 		return integralSum;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see AbstractExpression#toString()
+	 */
 	public String toString() {
 		return "INTEGRAL_" + lowerLimit + "^" + upperLimit + "(" + expArg.toString() + " d" + intVar + ")";
 	}

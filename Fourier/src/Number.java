@@ -1,9 +1,10 @@
 import java.util.*;
 
-public class NumericalExpression extends AbstractExpression {
+// The Numerical expression class. Wrapper for a double.
+public class Number extends AbstractExpression {
 	private double num;
 	
-	NumericalExpression(double num) {
+	Number(double num) {
 		this.num = num;
 	}
 	

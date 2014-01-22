@@ -4,23 +4,36 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 
+// The graphing class - handles graphing of the functions.
 public class Graphing extends JComponent implements ActionListener {
+	// Maximum variables our varList map can hold.
 	public static final int MAX_VARS = 5;
-
-	private JFrame frame = new JFrame("Fourier Series Expansion Graph View."); // the main window for our application
-	private JTextField messageField = new JTextField(20); // a single line display
-	private JLabel messageLabel = new JLabel("y = x"); // a non-editable display
-	private String s = "x";
+	// the main window for our application
+	private JFrame frame; 
+	// a single line text box
+	private JTextField messageField;
+	// a text display at the bottom of the frame, and its message string.
+	private JLabel messageLabel;
+	private String messageString;
 	
+	// Holding constants for now.
 	Map<String,Double> varList;
+	
+	// Array of expressions to graph.
 	AbstractExpression[] exprs;
+	// Number of functions in exprs
+	private int exprCount;
+	
+	// Graph dimension and max coordinate properties.
 	private int minX, maxX;
 	private int minY, maxY;
 	private int windowWidth, windowHeight;
-	private int intervals;
-	private int exprCount;
 	
-	Graphing(int windowWidth, int windowHeight, int minX, int maxX, int minY, int maxY, int intervals) {
+	// Graph refine amount
+	private int intervals;
+	
+	// Constructor
+	Graphing(int windowWidth, int windowHeight, int minX, int maxX, int minY, int maxY, int intervals) {		
 		this.minX = minX;
 		this.maxX = maxX;
 		this.minY = minY;
@@ -32,24 +45,29 @@ public class Graphing extends JComponent implements ActionListener {
 		varList.put("E", Math.E);
 		
 		this.exprs = new AbstractExpression[10];
-		this.windowWidth = windowWidth;
-		this.windowHeight = windowHeight;
 		this.exprCount = 0;
 		
+		// init the swing window
+		this.windowWidth = windowWidth;
+		this.windowHeight = windowHeight;
+		frame = new JFrame("Fourier Series Expansion Graph View."); 
+		messageField = new JTextField(20);
+		messageString = "f(x) = ";
+		messageLabel = new JLabel(messageString);
 		frame.getContentPane().setBackground(Color.white);
-		// Top
+		// North (text field)
 		JPanel northPanel = new JPanel();
 		northPanel.add(new JLabel("Enter the function to graph:"));
 		northPanel.add(messageField);
 		messageField.addActionListener(this);
 		frame.getContentPane().add(northPanel, "North");
 		
-		// Bottom
+		// South(Message field)
 		JPanel southPanel = new JPanel();
 		southPanel.add(messageLabel);
 		frame.getContentPane().add(southPanel, "South");
 	
-		// Centre
+		// Centre (Graph)
 		frame.getContentPane().add(this);
 
 		// change frame size, disallow the user from changing size & make it visible
@@ -59,104 +77,48 @@ public class Graphing extends JComponent implements ActionListener {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
-	/** Deprecated due to inefficiency
-	public AbstractExpression fourierSeries(AbstractExpression expr, double evalInterval, int degree) {
-		//a_0
-		AbstractExpression intervalFactor = new BinaryExpression(new NumericalExpression(1), new NumericalExpression(evalInterval), "/");
-		AbstractExpression a_0_factor = new BinaryExpression(new NumericalExpression(0.5), intervalFactor, "*");
-		AbstractExpression a_0_integral = new IntegralExpression(expr, -evalInterval, evalInterval, 100, "x");
-		AbstractExpression a_0 = new BinaryExpression(a_0_factor, a_0_integral, "*");
-		
-		//expression for the a_n's
-		AbstractExpression a_n_basis = new UnaryExpression(new BinaryExpression(new Variable("n"), new Variable("x"), "*"), "COS");
-		AbstractExpression a_n_integral = new IntegralExpression(new BinaryExpression(expr, a_n_basis, "*"), -evalInterval, evalInterval, 100, "x");
-		AbstractExpression a_n = new BinaryExpression(a_n_integral, a_n_basis, "*");
-		
-		//expression for the b_n's
-		AbstractExpression b_n_basis = new UnaryExpression(new BinaryExpression(new Variable("n"), new Variable("x"), "*"), "SIN");
-		AbstractExpression b_n_integral = new IntegralExpression(new BinaryExpression(expr, b_n_basis, "*"), -evalInterval, evalInterval, 100, "x");
-		AbstractExpression b_n = new BinaryExpression(b_n_integral, b_n_basis, "*");
-		
-		//expression for the unscaled Fourier partial series.
-		AbstractExpression fourier_terms = new SummationExpression(new BinaryExpression(a_n, b_n, "+"), 1, degree, "n");
-		
-		//expression for the scaled Fourier partial series.
-		AbstractExpression fourier_partial = new BinaryExpression(a_0, new BinaryExpression(intervalFactor, fourier_terms, "*"), "+");
-		
-		return fourier_partial;
-	}**/
-	
-	public double[] fourierCosSpectrum(AbstractExpression expr, double evalInterval, int degree, Map<String,Double> varList) {
-		AbstractExpression a_n_basis = new UnaryExpression(new BinaryExpression(new NumericalExpression(Math.PI / evalInterval), new BinaryExpression(new Variable("n"), new Variable("x"), "*"), "*"), "COS");
-		AbstractExpression a_n_integral = new IntegralExpression(new BinaryExpression(expr, a_n_basis, "*"), -evalInterval, evalInterval, 100, "x");
-		AbstractExpression a_n = new BinaryExpression(new NumericalExpression(1 / evalInterval), a_n_integral, "*");
-		return a_n.intervalEvaluation(varList, 1, degree, degree - 1, "n");
-	}
-	
-	public double[] fourierSinSpectrum(AbstractExpression expr, double evalInterval, int degree, Map<String,Double> varList) {
-		AbstractExpression b_n_basis = new UnaryExpression(new BinaryExpression(new NumericalExpression(Math.PI / evalInterval), new BinaryExpression(new Variable("n"), new Variable("x"), "*"), "*"), "SIN");
-		AbstractExpression b_n_integral = new IntegralExpression(new BinaryExpression(expr, b_n_basis, "*"), -evalInterval, evalInterval, 100, "x");
-		AbstractExpression b_n = new BinaryExpression(new NumericalExpression(1 / evalInterval), b_n_integral, "*");
-		return b_n.intervalEvaluation(varList, 1, degree, degree - 1, "n");
-	}
-	
-	public double fourierConstant(AbstractExpression expr, double evalInterval, Map<String,Double> varList) {		
-		AbstractExpression a_0_integral = new IntegralExpression(expr, -evalInterval, evalInterval, 100, "x");
-		AbstractExpression a_0 = new BinaryExpression(new NumericalExpression(1 / (2*evalInterval)), a_0_integral, "*");
-		return a_0.evaluate(varList);
-	}
-	
-	public AbstractExpression fourierSeriesFromSpectrum(double constant, double[] cosSpectrum, double[] sinSpectrum, double evalInterval, int degree) {
-		AbstractExpression fourierPartialSeries = new NumericalExpression(constant);
-		for(int i = 0; i < degree; i++) {
-			AbstractExpression cosCoeff = new NumericalExpression(cosSpectrum[i]);
-			AbstractExpression cosBasis = new UnaryExpression(new BinaryExpression(new NumericalExpression(Math.PI / evalInterval), new BinaryExpression(new NumericalExpression(i+1), new Variable("x"), "*"), "*"), "COS");
-			AbstractExpression cosTerm = new BinaryExpression(cosCoeff, cosBasis, "*");
-			
-			AbstractExpression sinCoeff = new NumericalExpression(sinSpectrum[i]);
-			AbstractExpression sinBasis = new UnaryExpression(new BinaryExpression(new NumericalExpression(Math.PI / evalInterval), new BinaryExpression(new NumericalExpression(i+1), new Variable("x"), "*"), "*"), "SIN");
-			AbstractExpression sinTerm = new BinaryExpression(sinCoeff, sinBasis, "*");
-			
-			AbstractExpression fourierTerm = new BinaryExpression(cosTerm, sinTerm, "+");
-			fourierPartialSeries = new BinaryExpression(fourierPartialSeries, fourierTerm, "+");
-		}
-		return fourierPartialSeries;
-	}
-	
-	public AbstractExpression fourierSeries(AbstractExpression expr, double evalInterval, int degree,  Map<String,Double> varList) {
-		return fourierSeriesFromSpectrum(fourierConstant(expr, evalInterval, varList),
-				fourierCosSpectrum(expr, evalInterval, degree, varList),
-				fourierSinSpectrum(expr, evalInterval, degree, varList), evalInterval, degree);
-	}
-	
+	/*
+	 * Adds an expression to graph as a function of x.
+	 */
 	public void addGraph(AbstractExpression expr) {
 		exprs[exprCount++] = expr;
 		repaint();
 	}
 	
+	/*
+	 * Removes all graphs from the screen.
+	 */
 	public void clearGraphs() {
 		exprCount = 0;
 		repaint();
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+	 */
 	public void actionPerformed(ActionEvent e)
 	{
 		// the user pressed enter in the message box
 		if (e.getSource() == messageField)
 		{
 			// read entered text
-			s = messageField.getText();
+			messageString = messageField.getText();
 			//parse s into an AbstractExpression, set messageLabel text to toString() of the expr.
 			//expr = parse(s)
 			// clear the field
 			messageField.setText("");
 			// place message at bottom of frame
-			messageLabel.setText("f(x) = " + s);
+			messageLabel.setText("f(x) = " + messageString);
 			// place message in list of messages on left of screen
 			repaint();
 		}
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see javax.swing.JComponent#paint(java.awt.Graphics)
+	 */
      public void paint(Graphics g)
      {
     	 double scaleX = windowWidth / (maxX-minX);
