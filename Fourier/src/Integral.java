@@ -3,7 +3,7 @@ import java.util.*;
 // Class representing the integrals.
 public class Integral extends AbstractExpression {
 	// Bounds of integration.
-	private double lowerLimit, upperLimit;
+	private AbstractExpression lowerLimit, upperLimit;
 	
 	// Expression to integrate
 	private AbstractExpression expArg;
@@ -15,27 +15,13 @@ public class Integral extends AbstractExpression {
 	private int partitions;
 	
 	// Constructor
-	Integral(AbstractExpression expArg, double lowerLimit, double upperLimit, int partitions, String intVar) {
+	Integral(AbstractExpression expArg, AbstractExpression lowerLimit, AbstractExpression upperLimit, int partitions, String intVar) {
 		this.expArg = expArg;
 		this.lowerLimit = lowerLimit;
 		this.upperLimit = upperLimit;
 		this.intVar = intVar;
 		this.partitions = partitions;
 	}
-	
-	/* deprecated - Trapezoidal rule implementation
-	public double evaluate(Map<String,Double> varList) {
-		//disregard variables that matches the name of intVar
-		double partitionWidth = (upperLimit - lowerLimit) / partitions;
-		double[] partitionHeights = expArg.intervalEvaluation(varList, lowerLimit, upperLimit, partitions, intVar);
-		double integralSum = 0;
-		
-		//calculating trapezoidal areas
-		for (int i = 0; i < partitions; i++) {
-			integralSum += ((partitionHeights[i] + partitionHeights[i+1]) / 2) * partitionWidth;
-		}
-		return integralSum;
-	} */
 	
 	/*
 	 * (non-Javadoc)
@@ -45,12 +31,14 @@ public class Integral extends AbstractExpression {
 		// Simpson's rule implementation of integral approximation.
 		// Make a copy of the list, since we are changing it.
 		Map<String,Double> newList = new HashMap<String,Double>(varList);
-		double partitionWidth = (upperLimit - lowerLimit) / partitions;
-		double[] partitionHeights = expArg.intervalEvaluation(newList, lowerLimit, upperLimit, partitions, intVar);
+		double lower = lowerLimit.evaluate(varList);
+		double upper = upperLimit.evaluate(varList);
+		double partitionWidth = (upper - lower) / partitions;
+		double[] partitionHeights = expArg.intervalEvaluation(newList, lower, upper, partitions, intVar);
 		double integralSum = 0;
 		
 		for (int i = 0; i < partitions; i++) {
-			newList.put(intVar, (lowerLimit + (i * partitionWidth) + (partitionWidth / 2)));
+			newList.put(intVar, (lower + (i * partitionWidth) + (partitionWidth / 2)));
 			double simpsonProduct = partitionHeights[i] + partitionHeights[i+1] + 4 * expArg.evaluate(newList);
 			integralSum += (partitionWidth / 6) * simpsonProduct;
 		}

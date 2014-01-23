@@ -35,9 +35,12 @@ public class Parsing {
 	 * POST: Returns the AbstractExpression representing the function given.
 	 */
 	public static AbstractExpression toExpression(String expression) {
-		// Implementing the shunting yard algorithm, modifying to accommodate unaries and trinaries.
-		Stack<String> inputStack = new Stack<String>(); //<type>
+		// Implementing the shunting yard algorithm, modified to accommodate unary and trinary operators.
+		Stack<String> inputStack = new Stack<String>();
+		Stack<Operator> opStack = new Stack<Operator>(); 
+		Stack<AbstractExpression> expressionStack = new Stack<AbstractExpression>(); 
 		
+		// tokenize and push everything into input stack.
 		String[] tokens = tokenize(expression);
 		for (int i = tokens.length - 1; i >= 0; i--) {
 			if (!tokens[i].isEmpty()) {
@@ -45,34 +48,88 @@ public class Parsing {
 			}
 		}
 		
+		String token = "";
+		while (!inputStack.empty()) {
+			token = inputStack.pop();
+			if (Operator.isOp(token)) {
+				Operator currentOp = Operator.getOp(token);
+				if (currentOp.arity == 4 || (currentOp.arity == 1 && currentOp != Operator.LPAREN)) {
+					inputStack.pop();
+				}
+				int curPrecedence = currentOp.precedence;
+				if (opStack.empty()) {
+					// if the stack is empty, just push it on.
+					opStack.push(currentOp);
+				} else {
+					if(currentOp.arity != 1) {
+						while (!opStack.empty() && (opStack.peek().precedence >=  curPrecedence)) {
+							//pop ops off the stack and handle.
+							// handle non-binaries
+							//TODO:System.out.println("OP" + opStack.toString());
+							handleOperator(expressionStack, opStack.pop());
+
+						}
+					}
+					// push the new operator when all popping is done.
+					if(currentOp != Operator.RPAREN){
+						opStack.push(currentOp);
+					}
+				}
+			} else {
+				// if it is not a operator.
+				// try to parse as double, and store as variable into expression stack if failed.
+
+				AbstractExpression expr;
+				try {
+					expr = new Number(Double.parseDouble(token));
+				} catch (NumberFormatException ex) {
+					expr = new Variable(token);
+				}
+				expressionStack.push(expr);
+				
+				//TODO:System.out.println(expressionStack.toString());
+			}
+		}
+
+		while (!opStack.empty()) {
+			// might be still operators in stack. pop all these off and handle.
+			handleOperator(expressionStack, opStack.pop());
+		}
 		
-		
-		
-		
-		
-		
-		
-		
-		/// shunting yard implementation here...
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		//Test TODO: remove this
-		AbstractExpression b = new UnaryFn(new UnaryFn(new Variable("x"), Operator.SIN), Operator.ABS);
-		//AbstractExpression b = new UnaryFn(new Variable("x"), Operator.COS);
-		//AbstractExpression b = new BinaryFn(new Variable("x"), new Number(0.34), Operator.POW);
-		return b;
+		//after op is empty and in is empty, pop off the top of expression stack and return.
+		//TODO:System.out.println(expressionStack.peek().toString());
+		return expressionStack.pop();
+	}
+	
+	private static void handleOperator(Stack<AbstractExpression> expressionStack, Operator op) {
+		//handle unary, binary, trinary operators, as well as brackets.
+		Map<String,Double> varList = new HashMap<String,Double>(5);
+		varList.put("PI", Math.PI);
+		varList.put("E", Math.E);
+
+		if (op.arity == 1) {
+			AbstractExpression unaryExp = new UnaryFn(expressionStack.pop(), op);
+			expressionStack.push(unaryExp);
+		} else if (op.arity == 2) {
+			AbstractExpression rightExpr = expressionStack.pop();
+			AbstractExpression leftExpr = expressionStack.pop();
+			AbstractExpression unaryExp = new BinaryFn(leftExpr, rightExpr, op);
+			expressionStack.push(unaryExp);
+		} else if (op.arity == 4) {
+			AbstractExpression varName = expressionStack.pop();
+			AbstractExpression rightExpr = expressionStack.pop();
+			AbstractExpression midExpr = expressionStack.pop();
+			AbstractExpression leftExpr = expressionStack.pop();
+
+			if (op == Operator.INT) {
+				AbstractExpression intExpr = new Integral(rightExpr, leftExpr, midExpr, 1000, varName.toString());//TODO:integral cosntant
+				expressionStack.push(intExpr);
+			} else if (op == Operator.SUM) {
+				AbstractExpression sumExpr = new Summation(rightExpr, leftExpr, midExpr, varName.toString());
+				expressionStack.push(sumExpr);
+			}
+		} else if (op.arity == 0) {
+			// do nothing
+		}
 	}
 }

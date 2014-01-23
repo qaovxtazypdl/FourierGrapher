@@ -3,7 +3,7 @@ import java.util.Map;
 // Class representing summation notation expressions
 public class Summation extends AbstractExpression {
 	// Bounds of the summation
-	private int lowerLimit, upperLimit;
+	private AbstractExpression lowerLimit, upperLimit;
 	
 	// Expression to sum
 	private AbstractExpression expArg;
@@ -12,7 +12,7 @@ public class Summation extends AbstractExpression {
 	private String intVar;
 	
 	// Constructor
-	Summation(AbstractExpression expArg, int lowerLimit, int upperLimit, String intVar) {
+	Summation(AbstractExpression expArg, AbstractExpression lowerLimit, AbstractExpression upperLimit, String intVar) {
 		this.expArg = expArg;
 		this.lowerLimit = lowerLimit;
 		this.upperLimit = upperLimit;
@@ -24,8 +24,10 @@ public class Summation extends AbstractExpression {
 	 * @see AbstractExpression#evaluate(java.util.Map)
 	 */
 	public double evaluate(Map<String,Double> varList) {
-		int partitions = upperLimit - lowerLimit;
-		double[] partitionHeights = expArg.intervalEvaluation(varList, lowerLimit, upperLimit, partitions, intVar);
+		int lower = (int) lowerLimit.evaluate(varList);
+		int upper = (int) upperLimit.evaluate(varList);
+		int partitions = upper - lower;
+		double[] partitionHeights = expArg.intervalEvaluation(varList, lower, upper, partitions, intVar);
 		double sum = 0;
 		
 		for (int i = 0; i <= partitions; i++) {

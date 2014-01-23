@@ -6,10 +6,13 @@ import java.util.*;
 
 // The graphing class - handles graphing of the functions.
 public class Graphing extends JComponent implements ActionListener {
-	
 	// Default generated UID.
 	private static final long serialVersionUID = -4789458729262303669L;
-
+	
+	// Relationship between degrees and integral interval accuracy for this graph.
+	private static final int INTERVALS_FACTOR = 100;
+	// Half of the length of each interval marker on the graph.
+	private static final int MARKER_LENGTH = 6;
 	// Maximum variables our varList map can hold.
 	public static final int MAX_VARS = 10;
 	// the main window for our application
@@ -36,8 +39,18 @@ public class Graphing extends JComponent implements ActionListener {
 	// Graph refine amount
 	private int intervals;
 	
+	// Fourier degrees.
+	private int fourierDegree;
+	
+	// Fourier evaluation interval.
+	private double fourierInterval;
+	
 	// Constructor
-	Graphing(int windowWidth, int windowHeight, int minX, int maxX, int minY, int maxY, int intervals) {		
+	Graphing(int windowWidth, int windowHeight, int minX, int maxX, int minY, int maxY, int intervals) {
+		//INTERVALS_FACTOR = 100; TODO: do I want static constant, or class constant?
+		this.fourierDegree = 5;
+		this.fourierInterval = Math.PI;
+		
 		this.minX = minX;
 		this.maxX = maxX;
 		this.minY = minY;
@@ -82,7 +95,12 @@ public class Graphing extends JComponent implements ActionListener {
 	}
 	
 	/*
-	 * Adds an expression to graph as a function of x.
+	 * addGraph
+	 * 
+	 * expr - the function to graph.
+	 * 
+	 * PRE: expr is a valid function of x.
+	 * POST: Adds an expression to graph as a function of x.
 	 */
 	public void addGraph(AbstractExpression expr) {
 		exprs[exprCount++] = expr;
@@ -90,11 +108,34 @@ public class Graphing extends JComponent implements ActionListener {
 	}
 	
 	/*
-	 * Removes all graphs from the screen.
+	 * clearGraphs
+	 * 
+	 * PRE: true
+	 * POST: Removes all graphs from the screen.
 	 */
 	public void clearGraphs() {
 		exprCount = 0;
 		repaint();
+	}
+	
+	/*
+	 * clearGraphs
+	 * 
+	 * PRE: true
+	 * POST: Sets the new Fourier degree to graph up to.
+	 */
+	public void setFourierDegree(int degree) {
+		fourierDegree = degree;
+	}
+	
+	/*
+	 * setFourierInterval
+	 * 
+	 * PRE: true
+	 * POST: Sets the new Fourier interval of the function.
+	 */
+	public void setFourierInterval(int interval) {
+		fourierInterval = interval;
 	}
 	
 	/*
@@ -107,13 +148,12 @@ public class Graphing extends JComponent implements ActionListener {
 		if (e.getSource() == messageField)
 		{
 			// read entered text, parse it, graph it and it's fourier transform.
-			// Print the original expression to stdout.
 			messageString = messageField.getText().trim();
 			System.out.println(messageString);
 			
 			// Parsed expression.
 			AbstractExpression expr = Parsing.toExpression(messageString);
-			AbstractExpression fourier_expr = FourierSeries.fourierSeriesAndPrint(expr, Math.PI, 10000, 18, varList); //TODO: constants here
+			AbstractExpression fourier_expr = FourierSeries.fourierSeriesAndPrint(expr, fourierInterval, INTERVALS_FACTOR * fourierDegree, fourierDegree, varList); 
 			
 			// clear the field
 			messageField.setText("");
@@ -140,18 +180,20 @@ public class Graphing extends JComponent implements ActionListener {
     	 
     	 ///draw in the axis and labels. Bunch of math to scale correctly.
     	 g.setColor(Color.black);
-    	 g.drawLine((int)((-1*minX)*scaleX), 0, (int)((-1*minX)*scaleX),700); //y axis
-    	 g.drawLine(0,(int)(maxY * scaleY), 700, (int)(maxY * scaleY)); //x axis
-    	 
+    	 g.drawLine((int)((-1*minX)*scaleX), 0, (int)((-1*minX)*scaleX), windowHeight); //y axis
+    	 g.drawLine(0,(int)(maxY * scaleY), windowWidth, (int)(maxY * scaleY)); //x axis
+
+    	 //draw in the markers, with length 12.
     	 for (int i = minX; i<=maxX; i++) {
-    		 g.drawLine((int)scaleX*(i-minX), (int)(maxY * scaleY) + 6,(int)scaleX*(i-minX), (int)(maxY * scaleY) - 6);
+    		 g.drawLine((int)scaleX*(i-minX), (int)(maxY * scaleY) + MARKER_LENGTH,(int)scaleX*(i-minX), (int)(maxY * scaleY) - MARKER_LENGTH);
     	 }
     	 for (int i = minY; i<=maxY; i++) {
-    		 g.drawLine((int)((-1*minX)*scaleX)-6, (int)((maxY - i) * scaleY), (int)((-1*minX)*scaleX)+6, (int)((maxY - i) * scaleY));
+    		 g.drawLine((int)((-1*minX)*scaleX)-MARKER_LENGTH, (int)((maxY - i) * scaleY), (int)((-1*minX)*scaleX)+MARKER_LENGTH, (int)((maxY - i) * scaleY));
     	 }
     	 
     	 ///Graph the function by connecting plotted points by lines.
     	 for(int graphIndex = 0; graphIndex < exprCount; graphIndex++) {
+        	 g.setColor(graphIndex > 0? Color.blue : Color.black);
     		 double[] intervalHeights = exprs[graphIndex].intervalEvaluation(varList, minX, maxX, intervals, "x");
     		 for(int i = 0; i < intervals; i++)
     		 {

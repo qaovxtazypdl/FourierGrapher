@@ -15,8 +15,10 @@ public class FourierSeries {
 	 * POST: Returns the Fourier cosine coefficients for expr on the given interval, with degree 1 coefficient in index 0
 	 */
 	public static double[] fourierCosSpectrum(AbstractExpression expr, double evalInterval, int integralInterval, int degree, Map<String,Double> varList) {
+		AbstractExpression lowerLimit = new Number(-evalInterval);
+		AbstractExpression upperLimit = new Number(evalInterval);
 		AbstractExpression a_n_basis = new UnaryFn(new BinaryFn(new Number(Math.PI / evalInterval), new BinaryFn(new Variable("n"), new Variable("x"), Operator.MULT), Operator.MULT), Operator.COS);
-		AbstractExpression a_n_integral = new Integral(new BinaryFn(expr, a_n_basis, Operator.MULT), -evalInterval, evalInterval, integralInterval, "x");
+		AbstractExpression a_n_integral = new Integral(new BinaryFn(expr, a_n_basis, Operator.MULT), lowerLimit, upperLimit, integralInterval, "x");
 		AbstractExpression a_n = new BinaryFn(new Number(1 / evalInterval), a_n_integral, Operator.MULT);
 		return a_n.intervalEvaluation(varList, 1, degree, degree - 1, "n");
 	}
@@ -33,8 +35,10 @@ public class FourierSeries {
 	 * POST: Returns the Fourier cosine coefficients for expr on the given interval, with degree 1 coefficient in index 0
 	 */
 	public static double[] fourierSinSpectrum(AbstractExpression expr, double evalInterval, int integralInterval, int degree, Map<String,Double> varList) {
+		AbstractExpression lowerLimit = new Number(-evalInterval);
+		AbstractExpression upperLimit = new Number(evalInterval);
 		AbstractExpression b_n_basis = new UnaryFn(new BinaryFn(new Number(Math.PI / evalInterval), new BinaryFn(new Variable("n"), new Variable("x"), Operator.MULT), Operator.MULT), Operator.SIN);
-		AbstractExpression b_n_integral = new Integral(new BinaryFn(expr, b_n_basis, Operator.MULT), -evalInterval, evalInterval, integralInterval, "x");
+		AbstractExpression b_n_integral = new Integral(new BinaryFn(expr, b_n_basis, Operator.MULT), lowerLimit, upperLimit, integralInterval, "x");
 		AbstractExpression b_n = new BinaryFn(new Number(1 / evalInterval), b_n_integral, Operator.MULT);
 		return b_n.intervalEvaluation(varList, 1, degree, degree - 1, "n");
 	}
@@ -49,8 +53,10 @@ public class FourierSeries {
 	 * PRE: expr is a function of x.
 	 * POST: Returns the Fourier constant (degree 0) for the function on the given interval.
 	 */
-	public static double fourierConstant(AbstractExpression expr, double evalInterval, int integralInterval, Map<String,Double> varList) {		
-		AbstractExpression a_0_integral = new Integral(expr, -evalInterval, evalInterval, integralInterval, "x");
+	public static double fourierConstant(AbstractExpression expr, double evalInterval, int integralInterval, Map<String,Double> varList) {	
+		AbstractExpression lowerLimit = new Number(-evalInterval);
+		AbstractExpression upperLimit = new Number(evalInterval);
+		AbstractExpression a_0_integral = new Integral(expr, lowerLimit, upperLimit, integralInterval, "x");
 		AbstractExpression a_0 = new BinaryFn(new Number(1 / (2*evalInterval)), a_0_integral, Operator.MULT);
 		return a_0.evaluate(varList);
 	}

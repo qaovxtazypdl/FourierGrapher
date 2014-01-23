@@ -2,13 +2,17 @@ import java.util.*;
 
 public enum Operator {
     // Unary
-    SIN(1, "SIN"), COS(1, "COS"), TAN(1, "TAN"), ASIN(1, "ASIN"), ACOS(1, "ACOS"),
-    ATAN(1, "ATAN"), SINH(1, "SINH"), COSH(1, "COSH"), TANH(1, "TANH"),
-    ABS(1, "ABS"), LOG(1, "LOG"), SQRT(1, "SQRT"), FLOOR(1, "FLOOR"), CEIL(1, "CEIL"), HEAVI(1, "HEAVI"),
+    SIN(1, "SIN", 1), COS(1, "COS", 1), TAN(1, "TAN", 1), ASIN(1, "ASIN", 1), ACOS(1, "ACOS", 1),
+    ATAN(1, "ATAN", 1), SINH(1, "SINH", 1), COSH(1, "COSH", 1), TANH(1, "TANH", 1), NEG(1, "NEG", 1),
+    ABS(1, "ABS", 1), LOG(1, "LOG", 1), SQRT(1, "SQRT", 1), FLOOR(1, "FLOOR", 1), CEIL(1, "CEIL", 1), HEAVI(1, "HEAVI", 1),
+    LPAREN(1, "ID", 1), //LPAREN, open parenthesis, is implemented as the identity function f(x)=x.
     // Binary
-    ADD(2, "+"), SUB(2, "-"), MULT(3, "*"), DIV(3, "/"), POW(4, "^"),
-    // Trinary
-    INT(1, "INT"), SUM(1, "SUM");
+    ADD(2, "+", 2), SUB(2, "-", 2), MULT(3, "*", 2), DIV(3, "/", 2), POW(4, "^", 2),
+    // Quaternary
+    INT(1, "INT", 4), SUM(1, "SUM", 4),
+    // RPAREN closes off unary functions
+    RPAREN(1, ")", 0),;
+
     
     // Mapping from string operator name to the Enum type.
 	private static Map<String,Operator> operatorMap = new HashMap<String,Operator>();
@@ -22,6 +26,7 @@ public enum Operator {
 		operatorMap.put("SINH", SINH);
 		operatorMap.put("COSH", COSH);
 		operatorMap.put("TANH", TANH);
+		operatorMap.put("NEG", NEG);
 		operatorMap.put("ABS", ABS);
 		operatorMap.put("LOG", LOG);
 		operatorMap.put("SQRT", SQRT);
@@ -35,23 +40,29 @@ public enum Operator {
 		operatorMap.put("^", POW);
 		operatorMap.put("INT", INT);
 		operatorMap.put("SUM", SUM);
+		operatorMap.put(")", RPAREN);
+		operatorMap.put("(", LPAREN);
 	}
 	
     // operator precedence. Higher is higher prec.
-    // 1: int, sum {} {} {} - 3 values in curly braces. 
-    // 1: unaries - ()
+	// 0: Closing bracket.
+    // 1: Unary functions. SIN, COS... etc, open bracket(identity function, unary)
     // 2: add, sub
     // 3: mult, div
     // 4: expt
-    private int precedence;
+    public final int precedence;
     
     // string representation of the operator.
-    private String stringRep;
+    public final String stringRep;
+    
+    // arity of the operator
+    public final int arity;
     
     // Constructor
-    Operator(int precedence, String stringRep) {
+    Operator(int precedence, String stringRep, int arity) {
     	this.precedence = precedence;
     	this.stringRep = stringRep;
+    	this.arity = arity;
     }
     
     /*
@@ -60,16 +71,6 @@ public enum Operator {
      */
 	public String toString() {
 		return stringRep;
-	}
-	
-	/* 
-	 * getPrecedence
-	 * 
-	 * PRE: true
-	 * POST: returns the precedence value of the calling operator.
-	 */
-	public int getPrecedence() {
-		return precedence;
 	}
 	
 	/*
@@ -82,5 +83,17 @@ public enum Operator {
 	 */
 	public static Operator getOp(String op) {
 		return operatorMap.get(op);
+	}
+	
+	/*
+	 * isOp
+	 * 
+	 * op - Operator name in string.
+	 * 
+	 * PRE: true
+	 * POST: returns true if op represents an Operator.
+	 */
+	public static boolean isOp(String op) {
+		return operatorMap.containsKey(op);
 	}
 }

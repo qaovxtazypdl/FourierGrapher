@@ -65,6 +65,12 @@ public class UnaryFn extends AbstractExpression {
 		case CEIL:
 			result = Math.ceil(innerResult);
 			break;
+		case NEG:
+			result = -1 * innerResult;
+			break;
+		case LPAREN: //the identity function.
+			result = innerResult;
+			break;
 		case HEAVI:
 			if (innerResult >= 0) {
 				result = innerResult;
