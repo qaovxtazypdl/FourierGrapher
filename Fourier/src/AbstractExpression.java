@@ -2,6 +2,8 @@ import java.util.*;
 
 // Abstract base class for the types of expressions.
 public abstract class AbstractExpression {
+	public static final double DIFFERENTIAL= 1E-12;
+	
 	/*
 	 * evaluate
 	 * 
@@ -33,6 +35,19 @@ public abstract class AbstractExpression {
 		}
 		return results;
  	}
+	
+	/* doubleEquals
+	 * 
+	 * d1, d2 - the doubles to compare.
+	 * 
+	 * PRE: none
+	 * POST: returns true if the two doubles are within a differential.
+	 */
+	public static boolean doubleEquals(double d1, double d2) {
+		return Math.abs(d1-d2) <= DIFFERENTIAL;
+ 	}
+	
+	
 	
 	/* toString
 	 * (non-Javadoc)

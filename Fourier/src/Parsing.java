@@ -69,8 +69,10 @@ public class Parsing {
 		
 		
 		
-		
-		AbstractExpression b = new UnaryFn(new UnaryFn(new Variable("x"), Operator.FLOOR), Operator.HEAVI);
+		//Test TODO: remove this
+		AbstractExpression b = new UnaryFn(new UnaryFn(new Variable("x"), Operator.SIN), Operator.ABS);
+		//AbstractExpression b = new UnaryFn(new Variable("x"), Operator.COS);
+		//AbstractExpression b = new BinaryFn(new Variable("x"), new Number(0.34), Operator.POW);
 		return b;
 	}
 }

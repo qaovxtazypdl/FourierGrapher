@@ -113,7 +113,7 @@ public class Graphing extends JComponent implements ActionListener {
 			
 			// Parsed expression.
 			AbstractExpression expr = Parsing.toExpression(messageString);
-			AbstractExpression fourier_expr = FourierSeries.fourierSeriesAndPrint(expr, 6, 1000, 25, varList); //TODO: constants here
+			AbstractExpression fourier_expr = FourierSeries.fourierSeriesAndPrint(expr, Math.PI, 10000, 18, varList); //TODO: constants here
 			
 			// clear the field
 			messageField.setText("");
