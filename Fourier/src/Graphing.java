@@ -6,8 +6,12 @@ import java.util.*;
 
 // The graphing class - handles graphing of the functions.
 public class Graphing extends JComponent implements ActionListener {
+	
+	// Default generated UID.
+	private static final long serialVersionUID = -4789458729262303669L;
+
 	// Maximum variables our varList map can hold.
-	public static final int MAX_VARS = 5;
+	public static final int MAX_VARS = 10;
 	// the main window for our application
 	private JFrame frame; 
 	// a single line text box
@@ -44,7 +48,7 @@ public class Graphing extends JComponent implements ActionListener {
 		varList.put("PI", Math.PI);
 		varList.put("E", Math.E);
 		
-		this.exprs = new AbstractExpression[10];
+		this.exprs = new AbstractExpression[MAX_VARS];
 		this.exprCount = 0;
 		
 		// init the swing window
@@ -52,12 +56,12 @@ public class Graphing extends JComponent implements ActionListener {
 		this.windowHeight = windowHeight;
 		frame = new JFrame("Fourier Series Expansion Graph View."); 
 		messageField = new JTextField(20);
-		messageString = "f(x) = ";
+		messageString = "No function plotted.";
 		messageLabel = new JLabel(messageString);
 		frame.getContentPane().setBackground(Color.white);
 		// North (text field)
 		JPanel northPanel = new JPanel();
-		northPanel.add(new JLabel("Enter the function to graph:"));
+		northPanel.add(new JLabel("Enter the function (of x) to graph:"));
 		northPanel.add(messageField);
 		messageField.addActionListener(this);
 		frame.getContentPane().add(northPanel, "North");
@@ -102,15 +106,25 @@ public class Graphing extends JComponent implements ActionListener {
 		// the user pressed enter in the message box
 		if (e.getSource() == messageField)
 		{
-			// read entered text
-			messageString = messageField.getText();
-			//parse s into an AbstractExpression, set messageLabel text to toString() of the expr.
-			//expr = parse(s)
+			// read entered text, parse it, graph it and it's fourier transform.
+			// Print the original expression to stdout.
+			messageString = messageField.getText().trim();
+			System.out.println(messageString);
+			
+			// Parsed expression.
+			AbstractExpression expr = Parsing.toExpression(messageString);
+			AbstractExpression fourier_expr = FourierSeries.fourierSeriesAndPrint(expr, 6, 1000, 25, varList); //TODO: constants here
+			
 			// clear the field
 			messageField.setText("");
-			// place message at bottom of frame
-			messageLabel.setText("f(x) = " + messageString);
-			// place message in list of messages on left of screen
+			
+			// place expression at bottom of frame
+			messageLabel.setText(messageString);
+			
+			// graph and redraw.
+			clearGraphs();
+			addGraph(expr);
+			addGraph(fourier_expr);
 			repaint();
 		}
 	}

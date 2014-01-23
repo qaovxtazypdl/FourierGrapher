@@ -3,10 +3,11 @@ import java.util.*;
 class Fourier {
 	// Everything here is temporary and for demo/testing purposes for now.
 	public static void main(String[] args) {
-		Graphing graph = new Graphing(700, 700, -12, 12, -12, 12, 1000);
+		Graphing graph = new Graphing(700, 700, -12, 12, -12, 12, 5000);
 		
-		//AbstractExpression a = new UnaryExpression(new Variable("x"), "H");
-		AbstractExpression b = new BinaryFn(new Variable("PI"), new Variable("x"), "^");
+		//AbstractExpression b = new UnaryFn(new Variable("x"), "");
+		AbstractExpression b = new UnaryFn(new UnaryFn(new Variable("x"), Operator.FLOOR), Operator.HEAVI);
+		//AbstractExpression b = new BinaryFn(new Variable("x"), new Number(0.34), "^");
 		
 		Map<String,Double> varList = new HashMap<String,Double>(5);
 		varList.put("PI", Math.PI);
@@ -15,9 +16,9 @@ class Fourier {
 		
 
 		graph.addGraph(b);
-		AbstractExpression b_f = FourierSeries.fourierSeries(b, Math.PI, 10, varList);
+		AbstractExpression b_f = FourierSeries.fourierSeries(b, 6, 1000, 25, varList);
 		graph.addGraph(b_f);
-		System.out.println(b_f.toString());
+//		//System.out.println(b_f.toString());
 		/*
 		double[] coss = graph.fourierCosSpectrum(b, Math.PI, 10, varList);
 		double[] sins = graph.fourierSinSpectrum(b, Math.PI, 10, varList);

@@ -14,10 +14,10 @@ public class FourierSeries {
 	 * PRE: true
 	 * POST: Returns the Fourier cosine coefficients for expr on the given interval, with degree 1 coefficient in index 0
 	 */
-	public static double[] fourierCosSpectrum(AbstractExpression expr, double evalInterval, int degree, Map<String,Double> varList) {
-		AbstractExpression a_n_basis = new UnaryFn(new BinaryFn(new Number(Math.PI / evalInterval), new BinaryFn(new Variable("n"), new Variable("x"), "*"), "*"), "COS");
-		AbstractExpression a_n_integral = new Integral(new BinaryFn(expr, a_n_basis, "*"), -evalInterval, evalInterval, 100, "x");
-		AbstractExpression a_n = new BinaryFn(new Number(1 / evalInterval), a_n_integral, "*");
+	public static double[] fourierCosSpectrum(AbstractExpression expr, double evalInterval, int integralInterval, int degree, Map<String,Double> varList) {
+		AbstractExpression a_n_basis = new UnaryFn(new BinaryFn(new Number(Math.PI / evalInterval), new BinaryFn(new Variable("n"), new Variable("x"), Operator.MULT), Operator.MULT), Operator.COS);
+		AbstractExpression a_n_integral = new Integral(new BinaryFn(expr, a_n_basis, Operator.MULT), -evalInterval, evalInterval, integralInterval, "x");
+		AbstractExpression a_n = new BinaryFn(new Number(1 / evalInterval), a_n_integral, Operator.MULT);
 		return a_n.intervalEvaluation(varList, 1, degree, degree - 1, "n");
 	}
 	
@@ -32,10 +32,10 @@ public class FourierSeries {
 	 * PRE: true
 	 * POST: Returns the Fourier cosine coefficients for expr on the given interval, with degree 1 coefficient in index 0
 	 */
-	public static double[] fourierSinSpectrum(AbstractExpression expr, double evalInterval, int degree, Map<String,Double> varList) {
-		AbstractExpression b_n_basis = new UnaryFn(new BinaryFn(new Number(Math.PI / evalInterval), new BinaryFn(new Variable("n"), new Variable("x"), "*"), "*"), "SIN");
-		AbstractExpression b_n_integral = new Integral(new BinaryFn(expr, b_n_basis, "*"), -evalInterval, evalInterval, 100, "x");
-		AbstractExpression b_n = new BinaryFn(new Number(1 / evalInterval), b_n_integral, "*");
+	public static double[] fourierSinSpectrum(AbstractExpression expr, double evalInterval, int integralInterval, int degree, Map<String,Double> varList) {
+		AbstractExpression b_n_basis = new UnaryFn(new BinaryFn(new Number(Math.PI / evalInterval), new BinaryFn(new Variable("n"), new Variable("x"), Operator.MULT), Operator.MULT), Operator.SIN);
+		AbstractExpression b_n_integral = new Integral(new BinaryFn(expr, b_n_basis, Operator.MULT), -evalInterval, evalInterval, integralInterval, "x");
+		AbstractExpression b_n = new BinaryFn(new Number(1 / evalInterval), b_n_integral, Operator.MULT);
 		return b_n.intervalEvaluation(varList, 1, degree, degree - 1, "n");
 	}
 	
@@ -49,9 +49,9 @@ public class FourierSeries {
 	 * PRE: true
 	 * POST: Returns the Fourier constant (degree 0) for the function on the given interval.
 	 */
-	public static double fourierConstant(AbstractExpression expr, double evalInterval, Map<String,Double> varList) {		
-		AbstractExpression a_0_integral = new Integral(expr, -evalInterval, evalInterval, 100, "x");
-		AbstractExpression a_0 = new BinaryFn(new Number(1 / (2*evalInterval)), a_0_integral, "*");
+	public static double fourierConstant(AbstractExpression expr, double evalInterval, int integralInterval, Map<String,Double> varList) {		
+		AbstractExpression a_0_integral = new Integral(expr, -evalInterval, evalInterval, integralInterval, "x");
+		AbstractExpression a_0 = new BinaryFn(new Number(1 / (2*evalInterval)), a_0_integral, Operator.MULT);
 		return a_0.evaluate(varList);
 	}
 	
@@ -71,15 +71,15 @@ public class FourierSeries {
 		AbstractExpression fourierPartialSeries = new Number(constant);
 		for(int i = 0; i < degree; i++) {
 			AbstractExpression cosCoeff = new Number(cosSpectrum[i]);
-			AbstractExpression cosBasis = new UnaryFn(new BinaryFn(new Number(Math.PI / evalInterval), new BinaryFn(new Number(i+1), new Variable("x"), "*"), "*"), "COS");
-			AbstractExpression cosTerm = new BinaryFn(cosCoeff, cosBasis, "*");
+			AbstractExpression cosBasis = new UnaryFn(new BinaryFn(new Number(Math.PI / evalInterval), new BinaryFn(new Number(i+1), new Variable("x"), Operator.MULT), Operator.MULT), Operator.COS);
+			AbstractExpression cosTerm = new BinaryFn(cosCoeff, cosBasis, Operator.MULT);
 			
 			AbstractExpression sinCoeff = new Number(sinSpectrum[i]);
-			AbstractExpression sinBasis = new UnaryFn(new BinaryFn(new Number(Math.PI / evalInterval), new BinaryFn(new Number(i+1), new Variable("x"), "*"), "*"), "SIN");
-			AbstractExpression sinTerm = new BinaryFn(sinCoeff, sinBasis, "*");
+			AbstractExpression sinBasis = new UnaryFn(new BinaryFn(new Number(Math.PI / evalInterval), new BinaryFn(new Number(i+1), new Variable("x"), Operator.MULT), Operator.MULT), Operator.SIN);
+			AbstractExpression sinTerm = new BinaryFn(sinCoeff, sinBasis, Operator.MULT);
 			
-			AbstractExpression fourierTerm = new BinaryFn(cosTerm, sinTerm, "+");
-			fourierPartialSeries = new BinaryFn(fourierPartialSeries, fourierTerm, "+");
+			AbstractExpression fourierTerm = new BinaryFn(cosTerm, sinTerm, Operator.ADD);
+			fourierPartialSeries = new BinaryFn(fourierPartialSeries, fourierTerm, Operator.ADD);
 		}
 		return fourierPartialSeries;
 	}
@@ -92,9 +92,25 @@ public class FourierSeries {
 	 * degree - the degree of the Fourier series to compute up to.
 	 * varList - mapping of variables to values to replace during evaluation.
 	 */
-	public static AbstractExpression fourierSeries(AbstractExpression expr, double evalInterval, int degree,  Map<String,Double> varList) {
-		return fourierSeriesFromSpectrum(fourierConstant(expr, evalInterval, varList),
-				fourierCosSpectrum(expr, evalInterval, degree, varList),
-				fourierSinSpectrum(expr, evalInterval, degree, varList), evalInterval, degree);
+	public static AbstractExpression fourierSeries(AbstractExpression expr, double evalInterval, int integralInterval, int degree,  Map<String,Double> varList) {
+		return fourierSeriesFromSpectrum(fourierConstant(expr, evalInterval, integralInterval, varList),
+				fourierCosSpectrum(expr, evalInterval, integralInterval, degree, varList),
+				fourierSinSpectrum(expr, evalInterval, integralInterval, degree, varList), evalInterval, degree);
+	}
+	
+	/*
+	 * fourierSeries
+	 * 
+	 * expr - Function to determine the constant for.
+	 * evalInterval - interval on the real X axis to evaluate the Fourier series on.
+	 * degree - the degree of the Fourier series to compute up to.
+	 * varList - mapping of variables to values to replace during evaluation.
+	 */
+	public static AbstractExpression fourierSeriesAndPrint(AbstractExpression expr, double evalInterval, int integralInterval, int degree,  Map<String,Double> varList) {
+		double constant = fourierConstant(expr, evalInterval, integralInterval, varList);
+		double[] cosSpec = fourierCosSpectrum(expr, evalInterval, integralInterval, degree, varList);
+		double[] sinSpec = fourierSinSpectrum(expr, evalInterval, integralInterval, degree, varList);
+		
+		return fourierSeriesFromSpectrum(constant, cosSpec, sinSpec, evalInterval, degree);
 	}
 }

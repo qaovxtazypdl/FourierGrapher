@@ -3,16 +3,16 @@ import java.util.*;
 // Class representing the binary functions.
 public class BinaryFn extends AbstractExpression {
 	// Supports operators + - * / ^
-	private String operator;
+	private Operator op;
 	/* Expressions in the binary function, left and right of the operator. */
 	private AbstractExpression expRight;
 	private AbstractExpression expLeft;
 	
 	// Constructor
-	BinaryFn(AbstractExpression expLeft, AbstractExpression expRight, String operator) {
+	BinaryFn(AbstractExpression expLeft, AbstractExpression expRight, Operator op) {
 		this.expRight = expRight;
 		this.expLeft = expLeft;
-		this.operator = operator;
+		this.op = op;
 	}
 	
 	/*
@@ -24,18 +24,28 @@ public class BinaryFn extends AbstractExpression {
 		double leftResult = expLeft.evaluate(varList);
 		double rightResult = expRight.evaluate(varList);
 		
-		if (operator.equalsIgnoreCase("+")) {
+		switch (op) {
+		case ADD:
 			result = leftResult + rightResult;
-		} else if (operator.equalsIgnoreCase("-")) {
+			break;              
+		case SUB:
 			result = leftResult - rightResult;
-		} else if (operator.equalsIgnoreCase("*")) {
+            break;                 
+		case MULT: 
 			result = leftResult * rightResult;
-		} else if (operator.equalsIgnoreCase("/")) {
+			break;		
+		case DIV:
 			result = leftResult / rightResult;
-		} else if (operator.equalsIgnoreCase("^")) {
+			break;
+		case POW:
 			result = Math.pow(leftResult, rightResult);
+			break;     
+		default:
+			System.out.println("Invalid binary operator.");
+			break;
 		}
-		return result;
+		
+		return Double.isNaN(result)? 0 : result;
 	}
 	
 	/*
@@ -43,6 +53,6 @@ public class BinaryFn extends AbstractExpression {
 	 * @see AbstractExpression#toString()
 	 */
 	public String toString() {
-		return "(" + expLeft.toString() + operator + expRight.toString() + ")";
+		return "(" + expLeft.toString() + op.toString() + expRight.toString() + ")";
 	}
 }

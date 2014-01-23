@@ -3,15 +3,15 @@ import java.util.*;
 // Class representing unary functions.
 public class UnaryFn extends AbstractExpression {
 	// supports SIN, COS, TAN, ASIN, ACOS, ATAN, SINH, COSH, TANH, ABS, LOG, SQRT, FLOOR, CEIL, H(Heaviside) 
-	private String operator;
+	private Operator op;
 	
 	// Inner expression of the unary function.
 	private AbstractExpression expArg;
 	
 	// Constructor
-	UnaryFn(AbstractExpression expArg, String operator) {
+	UnaryFn(AbstractExpression expArg, Operator op) {
 		this.expArg = expArg;
-		this.operator = operator;
+		this.op = op;
 	}
 	
 	/*
@@ -22,43 +22,63 @@ public class UnaryFn extends AbstractExpression {
 		double result = 0;
 		double innerResult = expArg.evaluate(varList);
 		
-		if (operator.equalsIgnoreCase("SIN")) {
+		switch (op) {
+		case SIN:
 			result = Math.sin(innerResult);
-		} else if (operator.equalsIgnoreCase("COS")) {
+			break;
+		case COS:
 			result = Math.cos(innerResult);
-		} else if (operator.equalsIgnoreCase("TAN")) {
+			break;
+		case TAN:
 			result = Math.tan(innerResult);
-		} else if (operator.equalsIgnoreCase("ASIN")) {
+			break;
+		case ASIN:
 			result = Math.asin(innerResult);
-		} else if (operator.equalsIgnoreCase("ACOS")) {
+			break;
+		case ACOS:
 			result = Math.acos(innerResult);
-		} else if (operator.equalsIgnoreCase("ATAN")) {
+			break;
+		case ATAN:
 			result = Math.atan(innerResult);
-		} else if (operator.equalsIgnoreCase("SINH")) {
+			break;
+		case SINH:
 			result = Math.sinh(innerResult);
-		} else if (operator.equalsIgnoreCase("COSH")) {
+			break;
+		case COSH:
 			result = Math.cosh(innerResult);
-		} else if (operator.equalsIgnoreCase("TANH")) {
+			break;
+		case TANH:
 			result = Math.tanh(innerResult);
-		} else if (operator.equalsIgnoreCase("ABS")) {
+			break;
+		case ABS:
 			result = Math.abs(innerResult);
-		} else if (operator.equalsIgnoreCase("LOG")) {
+			break;
+		case LOG:
 			result = Math.log(innerResult);
-		} else if (operator.equalsIgnoreCase("SQRT")) {
+			break;
+		case SQRT:
 			result = Math.sqrt(innerResult);
-		} else if (operator.equalsIgnoreCase("FLOOR")) {
+			break;
+		case FLOOR:
 			result = Math.floor(innerResult);
-		} else if (operator.equalsIgnoreCase("CEIL")) {
+			break;
+		case CEIL:
 			result = Math.ceil(innerResult);
-		} else if (operator.equalsIgnoreCase("H")) {
+			break;
+		case HEAVI:
 			if (innerResult >= 0) {
 				result = innerResult;
 			} else {
 				result = 0;
 			}
-			
+			break;
+		default:
+			System.out.println("Invalid unary operator.");
+			break;
 		}
-		return result;
+		
+		
+		return Double.isNaN(result)? 0 : result;
 	}
 	
 	/*
@@ -66,6 +86,6 @@ public class UnaryFn extends AbstractExpression {
 	 * @see AbstractExpression#toString()
 	 */
 	public String toString() {
-		return operator + "(" + expArg.toString() + ")";
+		return op.toString() + "(" + expArg.toString() + ")";
 	}
 }
