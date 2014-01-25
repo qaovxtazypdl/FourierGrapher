@@ -17,9 +17,9 @@ public class FourierSeries {
 	public static double[] fourierCosSpectrum(AbstractExpression expr, double evalInterval, int integralInterval, int degree, Map<String,Double> varList) {
 		AbstractExpression lowerLimit = new Number(-evalInterval);
 		AbstractExpression upperLimit = new Number(evalInterval);
-		AbstractExpression a_n_basis = new UnaryFn(new BinaryFn(new Number(Math.PI / evalInterval), new BinaryFn(new Variable("n"), new Variable("x"), Operator.MULT), Operator.MULT), Operator.COS);
-		AbstractExpression a_n_integral = new Integral(new BinaryFn(expr, a_n_basis, Operator.MULT), lowerLimit, upperLimit, integralInterval, "x");
-		AbstractExpression a_n = new BinaryFn(new Number(1 / evalInterval), a_n_integral, Operator.MULT);
+		AbstractExpression a_n_basis = new UnaryExpr(new BinaryExpr(new Number(Math.PI / evalInterval), new BinaryExpr(new Variable("n"), new Variable("x"), Operator.MULT), Operator.MULT), Operator.COS);
+		AbstractExpression a_n_integral = new Integral(new BinaryExpr(expr, a_n_basis, Operator.MULT), lowerLimit, upperLimit, integralInterval, "x");
+		AbstractExpression a_n = new BinaryExpr(new Number(1 / evalInterval), a_n_integral, Operator.MULT);
 		return a_n.intervalEvaluation(varList, 1, degree, degree - 1, "n");
 	}
 	
@@ -37,9 +37,9 @@ public class FourierSeries {
 	public static double[] fourierSinSpectrum(AbstractExpression expr, double evalInterval, int integralInterval, int degree, Map<String,Double> varList) {
 		AbstractExpression lowerLimit = new Number(-evalInterval);
 		AbstractExpression upperLimit = new Number(evalInterval);
-		AbstractExpression b_n_basis = new UnaryFn(new BinaryFn(new Number(Math.PI / evalInterval), new BinaryFn(new Variable("n"), new Variable("x"), Operator.MULT), Operator.MULT), Operator.SIN);
-		AbstractExpression b_n_integral = new Integral(new BinaryFn(expr, b_n_basis, Operator.MULT), lowerLimit, upperLimit, integralInterval, "x");
-		AbstractExpression b_n = new BinaryFn(new Number(1 / evalInterval), b_n_integral, Operator.MULT);
+		AbstractExpression b_n_basis = new UnaryExpr(new BinaryExpr(new Number(Math.PI / evalInterval), new BinaryExpr(new Variable("n"), new Variable("x"), Operator.MULT), Operator.MULT), Operator.SIN);
+		AbstractExpression b_n_integral = new Integral(new BinaryExpr(expr, b_n_basis, Operator.MULT), lowerLimit, upperLimit, integralInterval, "x");
+		AbstractExpression b_n = new BinaryExpr(new Number(1 / evalInterval), b_n_integral, Operator.MULT);
 		return b_n.intervalEvaluation(varList, 1, degree, degree - 1, "n");
 	}
 	
@@ -57,7 +57,7 @@ public class FourierSeries {
 		AbstractExpression lowerLimit = new Number(-evalInterval);
 		AbstractExpression upperLimit = new Number(evalInterval);
 		AbstractExpression a_0_integral = new Integral(expr, lowerLimit, upperLimit, integralInterval, "x");
-		AbstractExpression a_0 = new BinaryFn(new Number(1 / (2*evalInterval)), a_0_integral, Operator.MULT);
+		AbstractExpression a_0 = new BinaryExpr(new Number(1 / (2*evalInterval)), a_0_integral, Operator.MULT);
 		return a_0.evaluate(varList);
 	}
 	
@@ -77,15 +77,15 @@ public class FourierSeries {
 		AbstractExpression fourierPartialSeries = new Number(constant);
 		for(int i = 0; i < degree; i++) {
 			AbstractExpression cosCoeff = new Number(cosSpectrum[i]);
-			AbstractExpression cosBasis = new UnaryFn(new BinaryFn(new Number(Math.PI / evalInterval), new BinaryFn(new Number(i+1), new Variable("x"), Operator.MULT), Operator.MULT), Operator.COS);
-			AbstractExpression cosTerm = new BinaryFn(cosCoeff, cosBasis, Operator.MULT);
+			AbstractExpression cosBasis = new UnaryExpr(new BinaryExpr(new Number(Math.PI / evalInterval), new BinaryExpr(new Number(i+1), new Variable("x"), Operator.MULT), Operator.MULT), Operator.COS);
+			AbstractExpression cosTerm = new BinaryExpr(cosCoeff, cosBasis, Operator.MULT);
 			
 			AbstractExpression sinCoeff = new Number(sinSpectrum[i]);
-			AbstractExpression sinBasis = new UnaryFn(new BinaryFn(new Number(Math.PI / evalInterval), new BinaryFn(new Number(i+1), new Variable("x"), Operator.MULT), Operator.MULT), Operator.SIN);
-			AbstractExpression sinTerm = new BinaryFn(sinCoeff, sinBasis, Operator.MULT);
+			AbstractExpression sinBasis = new UnaryExpr(new BinaryExpr(new Number(Math.PI / evalInterval), new BinaryExpr(new Number(i+1), new Variable("x"), Operator.MULT), Operator.MULT), Operator.SIN);
+			AbstractExpression sinTerm = new BinaryExpr(sinCoeff, sinBasis, Operator.MULT);
 			
-			AbstractExpression fourierTerm = new BinaryFn(cosTerm, sinTerm, Operator.ADD);
-			fourierPartialSeries = new BinaryFn(fourierPartialSeries, fourierTerm, Operator.ADD);
+			AbstractExpression fourierTerm = new BinaryExpr(cosTerm, sinTerm, Operator.ADD);
+			fourierPartialSeries = new BinaryExpr(fourierPartialSeries, fourierTerm, Operator.ADD);
 		}
 		return fourierPartialSeries;
 	}

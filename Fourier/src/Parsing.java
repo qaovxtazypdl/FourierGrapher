@@ -114,12 +114,12 @@ public class Parsing {
 		varList.put("E", Math.E);
 
 		if (op.arity == 1) {
-			AbstractExpression unaryExp = new UnaryFn(expressionStack.pop(), op);
+			AbstractExpression unaryExp = new UnaryExpr(expressionStack.pop(), op);
 			expressionStack.push(unaryExp);
 		} else if (op.arity == 2) {
 			AbstractExpression rightExpr = expressionStack.pop();
 			AbstractExpression leftExpr = expressionStack.pop();
-			AbstractExpression unaryExp = new BinaryFn(leftExpr, rightExpr, op);
+			AbstractExpression unaryExp = new BinaryExpr(leftExpr, rightExpr, op);
 			expressionStack.push(unaryExp);
 		} else if (op.arity == 4) {
 			AbstractExpression varName = expressionStack.pop();

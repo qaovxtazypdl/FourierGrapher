@@ -21,7 +21,7 @@ public class Graphing extends JComponent implements ActionListener {
 	private JTextField messageField;
 	// a text display at the bottom of the frame, and its message string.
 	private JLabel messageLabel;
-	private String messageString;
+	private String functionString;
 	
 	// Holding constants for now.
 	Map<String,Double> varList;
@@ -68,8 +68,8 @@ public class Graphing extends JComponent implements ActionListener {
 		this.windowHeight = windowHeight;
 		frame = new JFrame("Fourier Series Expansion Graph View."); 
 		messageField = new JTextField(20);
-		messageString = "No function plotted.";
-		messageLabel = new JLabel(messageString);
+		functionString = "No function plotted.";
+		messageLabel = new JLabel(functionString);
 		frame.getContentPane().setBackground(Color.white);
 		// North (text field)
 		JPanel northPanel = new JPanel();
@@ -147,19 +147,17 @@ public class Graphing extends JComponent implements ActionListener {
 		if (e.getSource() == messageField)
 		{
 			// read entered text, parse it, graph it and it's fourier transform.
-			messageString = messageField.getText().trim();
-			System.out.println(messageString);
-			
+			functionString = messageField.getText().trim();
+			System.out.println("f(x) = " + functionString);
 			// Parsed expression.
-			AbstractExpression expr = Parsing.toExpression(messageString);
+			AbstractExpression expr = Parsing.toExpression(functionString);
 			AbstractExpression fourier_expr = FourierSeries.fourierSeriesAndPrint(expr, fourierInterval, INTERVALS_FACTOR * fourierDegree, fourierDegree, varList); 
 			
 			// clear the field
 			messageField.setText("");
 			
 			// place expression at bottom of frame
-			messageLabel.setText(messageString);
-			
+			messageLabel.setText("f(x) = " + functionString);
 			// graph and redraw.
 			clearGraphs();
 			addGraph(expr);

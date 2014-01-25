@@ -1,7 +1,7 @@
 import java.util.*;
 
 // Class representing the binary functions.
-public class BinaryFn extends AbstractExpression {
+public class BinaryExpr extends AbstractExpression {
 	// Supports operators + - * / ^
 	private Operator op;
 	/* Expressions in the binary function, left and right of the operator. */
@@ -9,7 +9,7 @@ public class BinaryFn extends AbstractExpression {
 	private AbstractExpression expLeft;
 	
 	// Constructor
-	BinaryFn(AbstractExpression expLeft, AbstractExpression expRight, Operator op) {
+	BinaryExpr(AbstractExpression expLeft, AbstractExpression expRight, Operator op) {
 		this.expRight = expRight;
 		this.expLeft = expLeft;
 		this.op = op;

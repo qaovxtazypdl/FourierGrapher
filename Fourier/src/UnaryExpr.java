@@ -1,7 +1,7 @@
 import java.util.*;
 
 // Class representing unary functions.
-public class UnaryFn extends AbstractExpression {
+public class UnaryExpr extends AbstractExpression {
 	// supports SIN, COS, TAN, ASIN, ACOS, ATAN, SINH, COSH, TANH, ABS, LOG, SQRT, FLOOR, CEIL, H(Heaviside) 
 	private Operator op;
 	
@@ -9,7 +9,7 @@ public class UnaryFn extends AbstractExpression {
 	private AbstractExpression expArg;
 	
 	// Constructor
-	UnaryFn(AbstractExpression expArg, Operator op) {
+	UnaryExpr(AbstractExpression expArg, Operator op) {
 		this.expArg = expArg;
 		this.op = op;
 	}
