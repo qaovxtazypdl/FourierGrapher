@@ -36,7 +36,6 @@ public class Integral extends AbstractExpression {
 		double partitionWidth = (upper - lower) / partitions;
 		double[] partitionHeights = expArg.intervalEvaluation(newList, lower, upper, partitions, intVar);
 		double integralSum = 0;
-		
 		for (int i = 0; i < partitions; i++) {
 			newList.put(intVar, (lower + (i * partitionWidth) + (partitionWidth / 2)));
 			double simpsonProduct = partitionHeights[i] + partitionHeights[i+1] + 4 * expArg.evaluate(newList);

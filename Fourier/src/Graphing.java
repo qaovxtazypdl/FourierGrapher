@@ -47,7 +47,6 @@ public class Graphing extends JComponent implements ActionListener {
 	
 	// Constructor
 	Graphing(int windowWidth, int windowHeight, int minX, int maxX, int minY, int maxY, int intervals) {
-		//INTERVALS_FACTOR = 100; TODO: do I want static constant, or class constant?
 		this.fourierDegree = 5;
 		this.fourierInterval = Math.PI;
 		
@@ -134,7 +133,7 @@ public class Graphing extends JComponent implements ActionListener {
 	 * PRE: true
 	 * POST: Sets the new Fourier interval of the function.
 	 */
-	public void setFourierInterval(int interval) {
+	public void setFourierInterval(double interval) {
 		fourierInterval = interval;
 	}
 	

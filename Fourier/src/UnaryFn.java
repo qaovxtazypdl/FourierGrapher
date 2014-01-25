@@ -56,6 +56,9 @@ public class UnaryFn extends AbstractExpression {
 		case LOG:
 			result = Math.log(innerResult);
 			break;
+		case LOG10:
+			result = Math.log10(innerResult);
+			break;
 		case SQRT:
 			result = Math.sqrt(innerResult);
 			break;
@@ -73,7 +76,7 @@ public class UnaryFn extends AbstractExpression {
 			break;
 		case HEAVI:
 			if (innerResult >= 0) {
-				result = innerResult;
+				result = 1;
 			} else {
 				result = 0;
 			}
@@ -92,6 +95,11 @@ public class UnaryFn extends AbstractExpression {
 	 * @see AbstractExpression#toString()
 	 */
 	public String toString() {
-		return op.toString() + "(" + expArg.toString() + ")";
+		if (op == Operator.LPAREN) {
+			return expArg.toString();
+		} else {
+			return op.toString() + "(" + expArg.toString() + ")";
+		}
+		
 	}
 }

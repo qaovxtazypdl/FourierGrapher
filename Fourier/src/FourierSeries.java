@@ -125,15 +125,23 @@ public class FourierSeries {
 		String degreeLength = "" + (int)(Math.log10(degree) + 1);
 		
 		System.out.println("The Fourier series for the function given up to degree n=" + degree + " is:");
-		System.out.printf("%.10f\n", constant);
 		String positive;
+		positive = constant >= 0? "+" : "";
+		if (AbstractExpression.doubleEquals(constant, 0)) {
+			if (constant < 0) {
+				constant *= -1;
+			}
+			positive = " ";
+		}
+		System.out.printf("%.10f\n", constant);
+
 		double spectrumValue = 0;
 		
 		for (int i = 0; i < cosSpec.length; i++) {
 			spectrumValue = cosSpec[i];
 			positive = spectrumValue >= 0? "+" : "";
 			if (AbstractExpression.doubleEquals(spectrumValue, 0)) {
-				if (spectrumValue <= 0) {
+				if (spectrumValue < 0) {
 					spectrumValue *= -1;
 				}
 				positive = " ";
@@ -145,7 +153,7 @@ public class FourierSeries {
 			spectrumValue = sinSpec[i];
 			positive = spectrumValue >= 0? "+" : "";
 			if (AbstractExpression.doubleEquals(spectrumValue, 0)) {
-				if (spectrumValue <= 0) {
+				if (spectrumValue < 0) {
 					spectrumValue *= -1;
 				}
 				positive = " ";

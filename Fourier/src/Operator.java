@@ -4,35 +4,36 @@ public enum Operator {
     // Unary
     SIN(1, "SIN", 1), COS(1, "COS", 1), TAN(1, "TAN", 1), ASIN(1, "ASIN", 1), ACOS(1, "ACOS", 1),
     ATAN(1, "ATAN", 1), SINH(1, "SINH", 1), COSH(1, "COSH", 1), TANH(1, "TANH", 1), NEG(1, "NEG", 1),
-    ABS(1, "ABS", 1), LOG(1, "LOG", 1), SQRT(1, "SQRT", 1), FLOOR(1, "FLOOR", 1), CEIL(1, "CEIL", 1), HEAVI(1, "HEAVI", 1),
+    ABS(1, "ABS", 1), LOG(1, "LOG", 1), LOG10(1, "LOG", 1), SQRT(1, "SQRT", 1), FLOOR(1, "FLOOR", 1), CEIL(1, "CEIL", 1), HEAVI(1, "HEAVI", 1),
     LPAREN(1, "ID", 1), //LPAREN, open parenthesis, is implemented as the identity function f(x)=x.
     // Binary
     ADD(2, "+", 2), SUB(2, "-", 2), MULT(3, "*", 2), DIV(3, "/", 2), POW(4, "^", 2),
     // Quaternary
     INT(1, "INT", 4), SUM(1, "SUM", 4),
     // RPAREN closes off unary functions
-    RPAREN(1, ")", 0),;
+    RPAREN(0, ")", 0),;
 
     
     // Mapping from string operator name to the Enum type.
 	private static Map<String,Operator> operatorMap = new HashMap<String,Operator>();
 	static {
-		operatorMap.put("SIN", SIN);
-		operatorMap.put("COS", COS);
-		operatorMap.put("TAN", TAN);
-		operatorMap.put("ASIN", ASIN);
-		operatorMap.put("ACOS", ACOS);
-		operatorMap.put("ATAN", ATAN);
-		operatorMap.put("SINH", SINH);
-		operatorMap.put("COSH", COSH);
-		operatorMap.put("TANH", TANH);
-		operatorMap.put("NEG", NEG);
-		operatorMap.put("ABS", ABS);
-		operatorMap.put("LOG", LOG);
-		operatorMap.put("SQRT", SQRT);
-		operatorMap.put("FLOOR", FLOOR);
-		operatorMap.put("CEIL", CEIL);
-		operatorMap.put("HEAVI", HEAVI);
+		operatorMap.put("sin", SIN);
+		operatorMap.put("cos", COS);
+		operatorMap.put("tan", TAN);
+		operatorMap.put("asin", ASIN);
+		operatorMap.put("acos", ACOS);
+		operatorMap.put("atan", ATAN);
+		operatorMap.put("sinh", SINH);
+		operatorMap.put("cosh", COSH);
+		operatorMap.put("tanh", TANH);
+		operatorMap.put("neg", NEG);
+		operatorMap.put("abs", ABS);
+		operatorMap.put("log", LOG10);
+		operatorMap.put("ln", LOG);
+		operatorMap.put("sqrt", SQRT);
+		operatorMap.put("floor", FLOOR);
+		operatorMap.put("ceil", CEIL);
+		operatorMap.put("H", HEAVI);
 		operatorMap.put("+", ADD);
 		operatorMap.put("-", SUB);
 		operatorMap.put("*", MULT);

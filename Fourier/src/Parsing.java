@@ -61,17 +61,25 @@ public class Parsing {
 					// if the stack is empty, just push it on.
 					opStack.push(currentOp);
 				} else {
-					if(currentOp.arity != 1) {
+					if(currentOp.precedence > 1) {
 						while (!opStack.empty() && (opStack.peek().precedence >=  curPrecedence)) {
 							//pop ops off the stack and handle.
-							// handle non-binaries
-							//TODO:System.out.println("OP" + opStack.toString());
 							handleOperator(expressionStack, opStack.pop());
-
 						}
-					}
-					// push the new operator when all popping is done.
-					if(currentOp != Operator.RPAREN){
+						opStack.push(currentOp);
+					} else if (currentOp.precedence == 0) {
+						// pop until next precedence 1 op
+						while (!opStack.empty()) {
+							//pop ops off the stack until unary is found.
+							Operator op = opStack.pop();
+							handleOperator(expressionStack, op);
+							// we are done when we reach open bracket, unary fn, or integral/summation
+							if(op.arity == 1 || op.arity == 4) {
+								break;
+							}
+						}
+					} else {
+						// precedence was 1. directly push.
 						opStack.push(currentOp);
 					}
 				}
@@ -86,8 +94,6 @@ public class Parsing {
 					expr = new Variable(token);
 				}
 				expressionStack.push(expr);
-				
-				//TODO:System.out.println(expressionStack.toString());
 			}
 		}
 
@@ -97,12 +103,12 @@ public class Parsing {
 		}
 		
 		//after op is empty and in is empty, pop off the top of expression stack and return.
-		//TODO:System.out.println(expressionStack.peek().toString());
-		return expressionStack.pop();
+		AbstractExpression returnExp = expressionStack.pop();
+		return returnExp;
 	}
 	
 	private static void handleOperator(Stack<AbstractExpression> expressionStack, Operator op) {
-		//handle unary, binary, trinary operators, as well as brackets.
+		//handle unary, binary, quaternary operators, as well as brackets.
 		Map<String,Double> varList = new HashMap<String,Double>(5);
 		varList.put("PI", Math.PI);
 		varList.put("E", Math.E);
@@ -117,15 +123,15 @@ public class Parsing {
 			expressionStack.push(unaryExp);
 		} else if (op.arity == 4) {
 			AbstractExpression varName = expressionStack.pop();
-			AbstractExpression rightExpr = expressionStack.pop();
-			AbstractExpression midExpr = expressionStack.pop();
-			AbstractExpression leftExpr = expressionStack.pop();
+			AbstractExpression expr = expressionStack.pop();
+			AbstractExpression upperBound = expressionStack.pop();
+			AbstractExpression lowerBound = expressionStack.pop();
 
 			if (op == Operator.INT) {
-				AbstractExpression intExpr = new Integral(rightExpr, leftExpr, midExpr, 1000, varName.toString());//TODO:integral cosntant
+				AbstractExpression intExpr = new Integral(expr, lowerBound, upperBound, 30, varName.toString());//TODO:integral cosntant
 				expressionStack.push(intExpr);
 			} else if (op == Operator.SUM) {
-				AbstractExpression sumExpr = new Summation(rightExpr, leftExpr, midExpr, varName.toString());
+				AbstractExpression sumExpr = new Summation(expr, lowerBound, upperBound, varName.toString());
 				expressionStack.push(sumExpr);
 			}
 		} else if (op.arity == 0) {

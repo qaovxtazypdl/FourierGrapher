@@ -15,7 +15,6 @@ public class Variable extends AbstractExpression{
 	 * @see AbstractExpression#evaluate(java.util.Map)
 	 */
 	public double evaluate(Map<String,Double> varList) {
-		//System.out.println(varList);
 		return varList.get(varName);
 	}
 	

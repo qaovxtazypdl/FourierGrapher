@@ -27,11 +27,14 @@ public abstract class AbstractExpression {
 	 */
 	public double[] intervalEvaluation(Map<String,Double> varList, double lowerBound, double upperBound, int partitions, String varName) {
 		Map<String,Double> newList = new HashMap<String,Double>(varList);
+		partitions = (partitions < 1)? 1 : partitions;
 		double[] results = new double[partitions + 1];
 		double intervalWidth = (upperBound - lowerBound) / partitions;
+		double value;
 		for(int i = 0; i <= partitions; i++) {
 			newList.put(varName, lowerBound + i * intervalWidth);
-			results[i] = evaluate(newList);
+			value = evaluate(newList);
+			results[i] = AbstractExpression.doubleEquals(value, 0)? 0 : value;
 		}
 		return results;
  	}
