@@ -124,7 +124,7 @@ public class FourierSeries {
 		double[] sinSpec = fourierSinSpectrum(expr, evalInterval, integralInterval, degree, varList);
 		String degreeLength = "" + (int)(Math.log10(degree) + 1);
 		
-		System.out.println("The Fourier series for the function given up to degree n=" + degree + " is:");
+		System.out.println("The Fourier series for the function given up to degree n=" + degree + " with interval " + evalInterval + " is:");
 		String positive;
 		positive = constant >= 0? "+" : "";
 		if (AbstractExpression.doubleEquals(constant, 0)) {
@@ -133,7 +133,7 @@ public class FourierSeries {
 			}
 			positive = " ";
 		}
-		System.out.printf("%.10f\n", constant);
+		System.out.printf("F(x) = %.10f\n", constant);
 
 		double spectrumValue = 0;
 		

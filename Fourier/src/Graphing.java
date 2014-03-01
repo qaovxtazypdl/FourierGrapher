@@ -17,11 +17,17 @@ public class Graphing extends JComponent implements ActionListener {
 	public static final int MAX_VARS = 10;
 	// the main window for our application
 	private JFrame frame; 
+	// Panels
+	private JPanel northPanel, southPanel, leftPanel;
 	// a single line text box
 	private JTextField messageField;
 	// a text display at the bottom of the frame, and its message string.
-	private JLabel messageLabel;
+	private JLabel messageLabel, errorLabel;
 	private String functionString;
+	
+	// settings fields.
+	private JTextField graphDegree, graphInterval, graphXMin, graphXMax, graphYMin, graphYMax;
+	private JPanel graphDegreePanel, graphIntervalPanel, graphXMinPanel, graphXMaxPanel, graphYMinPanel, graphYMaxPanel;
 	
 	// Holding constants for now.
 	Map<String,Double> varList;
@@ -46,14 +52,14 @@ public class Graphing extends JComponent implements ActionListener {
 	private double fourierInterval;
 	
 	// Constructor
-	Graphing(int windowWidth, int windowHeight, int minX, int maxX, int minY, int maxY, int intervals) {
-		this.fourierDegree = 5;
+	Graphing(int intervals) {
+		this.fourierDegree = 10;
 		this.fourierInterval = Math.PI;
 		
-		this.minX = minX;
-		this.maxX = maxX;
-		this.minY = minY;
-		this.maxY = maxY;
+		this.minX = -10;
+		this.maxX = 10;
+		this.minY = -10;
+		this.maxY = 10;
 		this.intervals = intervals;
 		
 		this.varList = new HashMap<String,Double>(MAX_VARS);
@@ -64,31 +70,91 @@ public class Graphing extends JComponent implements ActionListener {
 		this.exprCount = 0;
 		
 		// init the swing window
-		this.windowWidth = windowWidth;
-		this.windowHeight = windowHeight;
+		this.windowWidth = 700;
+		this.windowHeight = 700;
+		
 		frame = new JFrame("Fourier Series Expansion Graph View."); 
 		messageField = new JTextField(20);
 		functionString = "No function plotted.";
 		messageLabel = new JLabel(functionString);
+		errorLabel = new JLabel("No errors yet.");
 		frame.getContentPane().setBackground(Color.white);
 		// North (text field)
-		JPanel northPanel = new JPanel();
+		northPanel = new JPanel();
 		northPanel.add(new JLabel("Enter the function (of x) to graph:"));
 		northPanel.add(messageField);
 		messageField.addActionListener(this);
-		frame.getContentPane().add(northPanel, "North");
+
+		
+		// Left (settings)
+		leftPanel = new JPanel();
+		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
+		
+		//private JTextField width, height, graphDegree, graphInterval, graphXMin, graphXMax, graphYMin, graphYMax;
+		//private JPanel widthPanel, heightPanel, graphDegreePanel, graphIntervalPanel, graphXMinPanel, graphXMaxPanel, graphYMinPanel, graphYMaxPanel;
+		
+		graphDegree = new JTextField(4);
+		graphInterval = new JTextField(4);
+		graphXMin = new JTextField(4);
+		graphXMax = new JTextField(4);
+		graphYMin = new JTextField(4);
+		graphYMax = new JTextField(4);
+		
+		graphXMin.setText("" + minX);
+		graphXMax.setText("" + maxX);
+		graphYMin.setText("" + minY);
+		graphYMax.setText("" + maxY);
+		
+		graphDegreePanel = new JPanel();
+		graphIntervalPanel = new JPanel();
+		graphXMinPanel = new JPanel();
+		graphXMaxPanel = new JPanel();
+		graphYMinPanel = new JPanel();
+		graphYMaxPanel = new JPanel();
+		
+		graphDegreePanel.add(new JLabel("Degree"));
+		graphIntervalPanel.add(new JLabel("Interval"));
+		graphXMinPanel.add(new JLabel("X min"));
+		graphXMaxPanel.add(new JLabel("X max"));
+		graphYMinPanel.add(new JLabel("Y min"));
+		graphYMaxPanel.add(new JLabel("Y max"));
+
+		graphDegreePanel.add(graphDegree);
+		graphIntervalPanel.add(graphInterval);
+		graphXMinPanel.add(graphXMin);
+		graphXMaxPanel.add(graphXMax);
+		graphYMinPanel.add(graphYMin);
+		graphYMaxPanel.add(graphYMax);
+		
+		graphDegree.addActionListener(this);
+		graphInterval.addActionListener(this);
+		graphXMin.addActionListener(this);
+		graphXMax.addActionListener(this);
+		graphYMin.addActionListener(this);
+		graphYMax.addActionListener(this);
+
+		leftPanel.add(graphDegreePanel);
+		leftPanel.add(graphIntervalPanel);
+		leftPanel.add(graphXMinPanel);
+		leftPanel.add(graphXMaxPanel);
+		leftPanel.add(graphYMinPanel);
+		leftPanel.add(graphYMaxPanel);
+
 		
 		// South(Message field)
-		JPanel southPanel = new JPanel();
+		southPanel = new JPanel();
+	    southPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 100, 5));
 		southPanel.add(messageLabel);
-		frame.getContentPane().add(southPanel, "South");
-	
-		// Centre (Graph)
-		frame.getContentPane().add(this);
+		southPanel.add(errorLabel);
 
-		// change frame size, disallow the user from changing size & make it visible
+		// add to the frame.
 		frame.setSize(windowWidth,windowHeight);
-		frame.setResizable(false);
+		frame.getContentPane().add(northPanel, BorderLayout.NORTH);
+		frame.getContentPane().add(leftPanel, BorderLayout.EAST);
+		frame.getContentPane().add(southPanel, BorderLayout.SOUTH);
+		frame.getContentPane().add(this, BorderLayout.CENTER);
+		
+		// set visibility and closing operation.
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
@@ -125,6 +191,7 @@ public class Graphing extends JComponent implements ActionListener {
 	 */
 	public void setFourierDegree(int degree) {
 		fourierDegree = degree;
+		graphDegree.setText("" + degree);
 	}
 	
 	/*
@@ -135,6 +202,13 @@ public class Graphing extends JComponent implements ActionListener {
 	 */
 	public void setFourierInterval(double interval) {
 		fourierInterval = interval;
+		graphInterval.setText("" + interval);
+	}
+	
+	private void updateDegreeAndInterval() {
+		for (int i = 1; i < exprCount; i+=2) {
+			exprs[i] = FourierSeries.fourierSeriesAndPrint(exprs[i-1], fourierInterval, INTERVALS_FACTOR * fourierDegree, fourierDegree, varList); 
+		}
 	}
 	
 	/*
@@ -144,25 +218,116 @@ public class Graphing extends JComponent implements ActionListener {
 	public void actionPerformed(ActionEvent e)
 	{
 		// the user pressed enter in the message box
-		if (e.getSource() == messageField)
-		{
+		if (e.getSource() == messageField) {
 			// read entered text, parse it, graph it and it's fourier transform.
 			functionString = messageField.getText().trim();
 			System.out.println("f(x) = " + functionString);
-			// Parsed expression.
+			
+			// Parse expression.
 			AbstractExpression expr = Parsing.toExpression(functionString);
 			AbstractExpression fourier_expr = FourierSeries.fourierSeriesAndPrint(expr, fourierInterval, INTERVALS_FACTOR * fourierDegree, fourierDegree, varList); 
-			
-			// clear the field
-			messageField.setText("");
-			
-			// place expression at bottom of frame
-			messageLabel.setText("f(x) = " + functionString);
-			// graph and redraw.
 			clearGraphs();
 			addGraph(expr);
 			addGraph(fourier_expr);
 			repaint();
+			
+			// place expression at bottom of frame
+			messageLabel.setText("f(x) = " + functionString);
+		} else if (e.getSource() == graphDegree) {
+			String message  = graphDegree.getText().trim();
+		    try { 
+		    	int deg = Integer.parseInt(message);
+		    	if (deg >= 0 && deg <= 100) {
+				    setFourierDegree(deg);
+				    updateDegreeAndInterval();
+		    	} else if (deg < 0) {
+		    		graphDegree.setText("" + fourierDegree);
+		    		errorLabel.setText("ERROR - Degree is too low (< 0).");
+		    	} else {
+		    		graphDegree.setText("" + fourierDegree);
+		    		errorLabel.setText("ERROR - Degree is too high (> 100).");
+		    	}
+		    	repaint();
+		    } catch(NumberFormatException ex) { 
+	    		graphDegree.setText("" + fourierDegree);
+	    		errorLabel.setText("ERROR - Invalid degree integer.");
+		    }
+		} else if (e.getSource() == graphInterval) {
+			String message  = graphInterval.getText().trim();
+		    try { 
+		    	Double interval = Double.parseDouble(message);
+		    	if (interval > 0) {
+				    setFourierInterval(interval);
+				    updateDegreeAndInterval();
+		    	} else {
+		    		graphInterval.setText("" + fourierInterval);
+		    		errorLabel.setText("ERROR - Interval is too low (< 0).");
+		    	} 
+		    	repaint();
+		    } catch(NumberFormatException ex) { 
+		    	graphInterval.setText("" + fourierInterval);
+	    		errorLabel.setText("ERROR - Invalid interval double.");
+		    }
+		} else if (e.getSource() == graphXMin) {
+			String message  = ((JTextField) e.getSource()).getText().trim();
+		    try { 
+		    	int interval = Integer.parseInt(message);
+			    if (interval < maxX) {
+			    	minX = interval;
+			    } else {
+			    	graphDegree.setText("" + minX);
+			    	errorLabel.setText("ERROR - minX was >= maxX");
+			    }
+			    repaint();
+		    } catch (NumberFormatException ex) { 
+		    	graphDegree.setText("" + minX);
+	    		errorLabel.setText("ERROR - Invalid X min integer.");
+		    }
+		} else if ( e.getSource() == graphXMax ) {
+			String message  = ((JTextField) e.getSource()).getText().trim();
+		    try { 
+		    	int interval = Integer.parseInt(message);
+			    if (interval > minX) {
+			    	maxX = interval;
+			   	} else {
+			   		graphDegree.setText("" + maxX);
+			   		errorLabel.setText("ERROR - maxX was <= minX");
+			   	}
+			    repaint();
+		    } catch (NumberFormatException ex) { 
+		    	graphDegree.setText("" + maxX);
+	    		errorLabel.setText("ERROR - Invalid X max integer.");
+		    }
+		} else if (e.getSource() == graphYMin) {
+			String message  = ((JTextField) e.getSource()).getText().trim();
+		    try { 
+		    	int interval = Integer.parseInt(message);
+			    if (interval < maxY) {
+			    	minY = interval;
+			    } else {
+			    	graphDegree.setText("" + minY);
+					errorLabel.setText("ERROR - minY was >= maxY");
+			    }
+			    repaint();
+		    } catch (NumberFormatException ex) { 
+		    	graphDegree.setText("" + minY);
+	    		errorLabel.setText("ERROR - Invalid Y min integer.");
+		    }
+		} else if (e.getSource() == graphYMax) {
+			String message  = ((JTextField) e.getSource()).getText().trim();
+		    try { 
+		    	int interval = Integer.parseInt(message);
+			    if (interval > minY) {
+			   		maxY = interval;
+			   	} else {
+			   		graphDegree.setText("" + maxY);
+			   		errorLabel.setText("ERROR - maxY was <= minY");
+			   	}
+			    repaint();
+		    } catch (NumberFormatException ex) { 
+		    	graphDegree.setText("" + maxY);
+	    		errorLabel.setText("ERROR - Invalid Y max integer.");
+		    }
 		}
 	}
 	
@@ -172,13 +337,13 @@ public class Graphing extends JComponent implements ActionListener {
 	 */
      public void paint(Graphics g)
      {
-    	 double scaleX = windowWidth / (maxX-minX);
-    	 double scaleY = windowHeight / (maxY-minY);
+    	 double scaleY = (frame.getHeight() - northPanel.getHeight() - southPanel.getHeight()) / (maxY-minY);
+    	 double scaleX = (frame.getWidth() - leftPanel.getWidth()) / (maxX-minX);
     	 
     	 ///draw in the axis and labels. Bunch of math to scale correctly.
     	 g.setColor(Color.black);
-    	 g.drawLine((int)((-1*minX)*scaleX), 0, (int)((-1*minX)*scaleX), windowHeight); //y axis
-    	 g.drawLine(0,(int)(maxY * scaleY), windowWidth, (int)(maxY * scaleY)); //x axis
+    	 g.drawLine((int)((-1*minX)*scaleX), 0, (int)((-1*minX)*scaleX), frame.getHeight()); //y axis
+    	 g.drawLine(0,(int)(maxY * scaleY), frame.getWidth(), (int)(maxY * scaleY)); //x axis
 
     	 //draw in the markers, with length 12.
     	 for (int i = minX; i<=maxX; i++) {

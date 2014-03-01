@@ -4,6 +4,20 @@ FourierGrapher
 Determines and graphs the fourier series approximation of a function to varying degrees.
 
 
+Usage
+======
+Follow prompts to specify graph properties. This will be integrated in the GUI later.
+Enter an infix notation function of x parenthesized where necessary into the prompt box and hit enter.
+E.g. 1+x, 1+x^4-x^3+sin(cos(x))/2
+Supported functions include:
+
+Binary: + - / * ^
+Unary: sin() cos()tan() asin() acos() atan() sinh() cosh() tanh() neg() abs() log() ln() sqrt() floor() ceil() H() (()
+
+Notes: 
+unary operators must have parentheses around its argument. Negation must be done using neg(), not -.
+H() is the heaviside function. (() is the identity operator.
+
 Background
 =====
 This originally started as a swing function grapher that was completed in June 2013.

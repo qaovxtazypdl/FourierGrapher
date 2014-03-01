@@ -83,7 +83,7 @@ public enum Operator {
 	 * POST: returns the Enum type corresponding to the string operator given.
 	 */
 	public static Operator getOp(String op) {
-		return operatorMap.get(op);
+		return operatorMap.get(op.toLowerCase());
 	}
 	
 	/*
@@ -95,6 +95,6 @@ public enum Operator {
 	 * POST: returns true if op represents an Operator.
 	 */
 	public static boolean isOp(String op) {
-		return operatorMap.containsKey(op);
+		return operatorMap.containsKey(op.toLowerCase());
 	}
 }
