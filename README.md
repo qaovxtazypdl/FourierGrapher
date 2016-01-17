@@ -3,6 +3,7 @@ FourierGrapher
 
 Determines and graphs the fourier series approximation of a function to varying degrees.
 
+![Screenshot](http://i.imgur.com/ZJZCuNS.png)
 
 Usage
 ======
